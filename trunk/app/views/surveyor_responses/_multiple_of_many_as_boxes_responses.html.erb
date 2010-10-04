@@ -1,0 +1,53 @@
+<% needs_response = @q[:other_response_params][:needs_response] || Survey::NeedsResponseDefault %>
+<div style="overflow:hidden; width:100%; margin-left:40px;">
+  <% @q[:response_choices].each_with_index do |choice, i| %>
+    <div
+      style="<%= 'display:none;' if Survey.use_kapcha?(@q[:question_type]) %>"
+      class="multiple_choice_box kapcha_token">
+      <% rounded_div :radius => RoundedCorner::AlertRadius, :border_color => RoundedCorner::Red, :interior_color => RoundedCorner::White do %>
+        <div id="choice_<%= i %>" style="text-align:center; color:black; cursor:pointer;" onclick="ChoiceClicked(<%= i %>);"><%= choice %></div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+<br />
+<center>
+  <div 
+    style="text-align:center; width:100px; <%= 'display:none;' if Survey.use_kapcha?(@q[:question_type]) %>color:black; cursor:pointer;"
+    class="kapcha_control"
+    id="kapcha_submit_button"
+    onclick="SubmitSurvey();">
+    <% rounded_div :radius => RoundedCorner::AlertRadius, :border_color => RoundedCorner::Grey, :interior_color => RoundedCorner::Red do %>
+      <%= @q[:submit_text] || Survey::DefaultSubmitText %>
+    <% end %>
+  </div>
+</center>
+
+<script type="text/javascript">
+
+  var responses = new Hash();  
+
+  function ChoiceClicked(i){
+    var elem = $('choice_' + i);
+    elem.toggleClassName('highlighted_choice');
+    var choice = elem.innerHTML;
+    if (responses.get(choice) == null){
+      responses.set(choice, true);      
+    }
+    else {
+      responses.unset(choice);
+    }
+  }
+  
+  function SubmitSurvey(){
+    $('response_form_text').value = encodeURIComponent(responses.keys().join(response_delimeter));
+    <% if needs_response %>
+      //make sure they answered the question (only check if surveyor deems it necessary)
+      if ($('response_form_text').value == ''){
+        alert('You must fill in an answer.');
+        return;
+      }
+    <% end %>
+    $('response_form').submit();
+  }
+</script>

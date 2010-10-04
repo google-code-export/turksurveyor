@@ -1,0 +1,18 @@
+<div id="survey_body" style="text-align:center;">
+  Thank you so much for completing the survey!<br />
+  <br /><br />
+  This page is submitting your HIT to MTurk...<img src="/images/spinner.gif" width="20" height="20">
+</div>
+<form method="post" action="https://<%= BasicMTurk::MTURK_DEV ? 'workersandbox' : 'www' %>.mturk.com/mturk/externalSubmit" id="mturk_form">
+  <input type="hidden" name="assignmentId" value="<%= @s.mturk_assignment_id %>" />
+  <input type="hidden" name="data" value="data" />
+  <input type="hidden" name="survey_id" value="<%= @s.id %>" />
+</form>
+<script>
+  Event.observe(window, 'load', function(){
+    //submit to mturk in a few seconds
+    setTimeout(function(){
+      $('mturk_form').submit();
+    }, 2000);
+  });
+</script>

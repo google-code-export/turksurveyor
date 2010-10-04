@@ -1,0 +1,596 @@
+\documentclass[12pt]{article}
+
+%%%%%%%%%
+% Thank you for contributing to TurkSurveyor and updating this manual
+% Don't forget to add yourself to the \author list
+%
+% INFORMATION FOR THOSE EDITING THIS FILE
+%
+% Restrictions for this tex file and preamble.tex
+% a) please do not change the title
+% b) please do not add a \date command
+% c) please to not change the formatting in non-trivial ways (use your best judgment)
+% d) please put all package information, commands, and definitions into preamble.tex
+% d) you may create new tex commands in preamble.tex, but do not override ones already created
+% 
+% Restrictions for files to be added to SVN
+% a) do not add the finished PDF. Instead, add it to the downloads section of the google code home portal with the filename "turksurveyor_manual_<2-digit month>_<2-digit day>_<2 digit year>.pdf".
+% a) do not commit any of the aux, log, out, toc, blg, bbl, dvi, ps, etc intermediate files to the SVN repo
+% b) you may update the turksurveyor_manual_refs.bib file if you need to
+% c) you may commit figures (only .eps figures are accepted) only in the /figs dir
+% d) you may commit source code files (that you display using the listings package) only in the /source_examples dir
+%
+% Best of luck and thanks again
+
+\include{preamble}
+
+%add yourself here
+\author{Adam Kapelner}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\pagebreak
+
+\section{Introduction}\label{sec:introduction}
+
+\textbf{TurkSurveyor} was written by Adam Kapelner and Dana Chandler. The project began as a generalization of the code used for the study \citet{KapelnerChandler2010}.\\
+\\
+\textbf{TurkSurveyor} is especially designed for the following tasks:
+
+\begin{itemize}
+\item Running custom surveys on MTurk
+\item Running experiments on MTurk that use surveys
+\end{itemize}
+
+\section{Getting the Default Survey Running}
+
+This section will help you get the pre-packaged default survey running on MTurk. Customizing your survey questions is covered in detail in section \ref{sec:question_customization} and the design is covered in section \ref{sec:design_customization}.
+
+\subsection{Obtaining the source code}
+
+Instructions on how to download or view the source code can be found at the source code's homepage:\\
+
+\href{http://code.google.com/p/turksurveyor/}{http://code.google.com/p/turksurveyor/}\\
+
+You will need a subversion source control program to download the code. For Windows, we recommend TortoiseSVN:\\
+
+\href{http://tortoisesvn.net/}{http://tortoisesvn.net/}\\
+
+After installation, right click a location on your computer where you would like to download the \textbf{TurkSurveyor} code, and click ``SVN Checkout''. For the URL of the repository, enter in the code.google link above and press ``Okay''.
+
+\subsection{Setting Your Passwords and Server Information}
+
+There is one file that is required and is NOT part of the repository because it contains personal information. In order to use \textbf{TurkSurveyor} you need to create the following file:\\
+
+\texttt{lib/personal\_information.rb} \\
+
+This is the file that contains all your personal passwords and login information. Create this file using the code template found in figure  \ref{code:personal_information.rb}. Replace all constants with your own, personalized information. Read the comments for explanation of each constant. If you are not using the recommended Aptana platform, ignore the last four fields of this configuration file.
+
+\begin{figure}[htp]
+\centering
+\lstinputlisting{source_examples/personal_information.rb}
+\caption{Template for \texttt{lib/personal\_information.rb}}
+\label{code:personal_information.rb}
+\end{figure}
+
+\subsection{Customizing how the HIT is Displayed on MTurk}
+
+Parameters such as the wage, country restriction, HIT title, assignment length, description, keywords, etc can be set in the file:\\
+
+\texttt{lib/survey\_m\_turk.rb} \\
+
+As an example, for the experiment found in \citet{KapelnerChandler2010}, the parameters used are found in figure \ref{code:survey_turk_relevant.rb}.
+
+\begin{figure}[htp]
+\centering
+\lstinputlisting{source_examples/survey_turk_relevant.rb}
+\caption{Parameters that must be customized in {\texttt{lib/survey\_m\_turk.rb}}}
+\label{code:survey_turk_relevant.rb}
+\end{figure}
+
+
+\subsection{Deployment}\label{subsec:deployment}
+
+We recommend using Aptana to deploy the site that will control your survey and collect your data. This will allow you get up and running within minutes of downloading the code.
+
+To do so, open a command prompt in the directory of the project and run the following commands:
+
+\begin{enumerate}
+\item \tt{gem sources -a http://gems.aptana.com}
+\item \tt{gem install aptana\_cloud}
+\end{enumerate} 
+
+Then, SSH into the server and install the following gems in the project directory using \texttt{gem install $<$gem name$>$}:
+
+\begin{enumerate}
+\item crypt
+\item ruby-aws
+\item rubystats
+\end{enumerate}
+
+
+You can now deploy the project via:\\
+
+{\tt{cap public deploy:migrations}}\\
+
+Every time you make a change to your project, you will need to rerun this command.
+
+\subsection{Creating new Surveys on MTurk}
+
+\subsubsection*{Manually}
+
+You can create new survey HITs on MTurk by authenticating yourself in the admin console (see section \ref{sec:admin_console}), and following the instructions under the ``create HITs'' section (see figure \ref{fig:create_hits}).
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=6in]{figs/create_hits.eps}
+\caption{The ``create HITs'' interface. For example, this would create 10 surveys on MTurk.}
+\label{fig:create_hits}
+\end{figure}
+
+
+\subsubsection*{Automatically}
+
+You can set up \textbf{TurkSurveyor} to automatically create HITs for you by creating a cron job. A template is located in {\tt{config/crontab.txt}} and is also shown in figure \ref{code:crontab.txt}.\footnote{For more information on writing crontab files, see \\ \href{http://www.unixgeeks.org/security/newbie/unix/cron-1.html}{http://www.unixgeeks.org/security/newbie/unix/cron-1.html}} Make sure to replace the angle bracketed ``project'' with the name of your Aptana application.
+
+
+\begin{figure}[htp]
+\centering
+\lstinputlisting{source_examples/crontab.txt}
+\caption{Template for the cron tab file for running the cron job that automatically creates HITs. For example, this default cron job will create 50 HITs every 6hrs beginning at 10AM EST (note that the Aptana machines are on the UTC timezone).}
+\label{code:crontab.txt}
+\end{figure}
+
+Once you have written your cron job(s), you can install them by SSH'ing into the server, running ``crontab -e'', pasting the text, and saving.
+
+\section{Customizing the Survey Questions}\label{sec:question_customization}
+
+This section will show you how to create questions, create experimental treatments, and customize the look and feel of your survey.
+
+\subsection{The Question Hash}\label{subsec:question_hash}
+
+Mastering how questions are stored in \textbf{TurkSurveyor} is essential to creating a custom survey. This section will go over the components of the question hash in detail.\\
+\\
+Questions are stored as Ruby hash objects. They begin with a curly brace and end with a curly brace. Keys in the hash are ruby symbols which begin with a colon. Listed below are each customization key. For examples, see the file {\tt{lib/survey\_true\_and\_check\_questions.rb}}.
+
+Keys that are required are marked ``required'' and keys that are optional are marked as ``optional''.
+
+
+\subsubsection{:signature (string) [required]}
+
+Each question must have a \textit{unique} identifier called the ``question signature''. If the question text is changed, we recommend you change the signature (since it now represents a different question). If the respondents have already filled in surveys with this question, do not change the signature, since you will not be able to access this past data from this question any longer.
+
+%
+%1 Question Text (
+%This is the text of the question itself
+
+\subsubsection{:question\_text (string) [required]}
+
+This is the question prompt itself (e.g. ``What is your favorite color?''). 
+
+\subsubsection{:question\_type (symbol) [required]}\label{subsubsec:question_type}
+
+This key specifies the format of this question. The legal options are listed below, a short description is given for each, as well as an example hash:
+
+
+\paragraph{:one\_of\_many}
+
+A multiple choice question where the respondent is allowed to pick only one answer. This question's responses are rendered in HTML as radio buttons.
+
+\begin{verbatim}
+{
+   :signature => 'dem_03_education',
+   :question_type => :demographic,
+   :question_text => %Q|What is your level of education?|,
+   :response_type => :one_of_many,
+   :response_choices => [
+     'Some High School',
+     'High School Graduate',
+     'Some college, no degree',
+     'Associates degree',
+     'Bachelors degree',
+     'Graduate degree, Masters',
+     'Graduate degree, Doctorate'
+   ]
+}
+\end{verbatim}
+
+\paragraph{:multiple\_of\_many}
+
+A multiple choice question where the respondent can pick multiple responses or no responses at all. This question's responses are rendered in HTML as check boxes.
+
+\begin{verbatim}
+{
+  :signature => 'dem_04_why_work_on_mturk',
+  :question_type => :demographic,
+  :question_text => %Q|Why do you complete tasks in Mechanical Turk? 
+    Please check any of the following that apply:|,
+  :response_type => :multiple_of_many,
+  :response_choices => [
+    "Fruitful way to spend free time and get some cash (e.g., instead of 
+    watching TV)",
+    %Q|For ''primary'' income purposes (e.g., gas, bills, groceries, 
+      credit cards)|,
+    %Q|For ''secondary'' income purposes, pocket change (for hobbies, 
+      gadgets, going out)|,
+    "To kill time",
+    "I find the tasks to be fun",
+    "I am currently unemployed, or have only a part time job"
+  ]
+}
+\end{verbatim}
+\paragraph{:multiple\_of\_many\_as\_boxes}
+
+A multiple choice question similar to the previous type with the difference being the responses are rendered as rounded boxes like. This question type was used to generate the IMC question found in both \citet{KapelnerChandler2010} and \citet{Opp09}.
+
+\paragraph{:likert\_scale}
+
+Question responses are scale from some minimum to some maximum. The responses are rendered in HTML on one horizontal line. Typical implementations are ``do you agree or disagree with X?'' with 7 levels, or ``how happy do you feel on a scale of 1-10?''.
+
+You can specify the following optional parameters in :other\_response\_params (see section \ref{subsubsec:other_response_params}):
+
+\begin{itemize}
+\item :likert\_min\_score (integer) \quad The minimum score on the Likert scale (defaulted to 1).
+\item :likert\_max\_score (integer) \quad The maximum score on the Likert scale (defaulted to 7).
+\item :likert\_descriptions (string array) \quad Stores descriptions for each of the score levels (therefore, the array must have length $\ell = \mathrm{max} - \mathrm{min} + 1$). For instance, on a 1-5 agreement scale, the first entry could be ``strongly disagree'', the second could be ``somewhat disagree'', the third entry could be ``no opinion'', the fourth entry could be ``somewhat agree'', and the last entry could be ``strongly agree''. Note that there is no default.
+\end{itemize}
+
+\begin{verbatim}
+Oppenheimer99MotivationCheck = {
+  :signature => 'motivation_gauge_oppenheimer_2009',
+  :question_type => :demographic,
+  :question_title => "Motivation Question",
+  :question_text => "How motivated were you to complete this survey?<br/> 
+    (1 - not motivated at all, 9 - very motivated)",
+  :response_type => :likert_scale,
+  :other_response_params => {:likert_max_score => 9}
+}
+\end{verbatim}
+
+\paragraph{:free\_response\_small}
+
+Respondent answers inside a small text box. This is particular useful for simple questions like ``What country were you born in?'' or ``What is your year of birth?'', etc.
+
+You can specify the following optional paramters in :other\_response\_params (see section \ref{subsubsec:other_response_params}):
+
+\begin{itemize}
+\item :input\_max\_characters (integer) \quad The maximum number of characters the respondent is allowed in his response.
+\item :text\_before\_free\_response (string) \quad Text printed directly before the response box.
+\item :text\_after\_free\_response (string) \quad Text printed directly after the response box.
+\item :text\_underneath\_free\_response (string) \quad Text printed directly underneath the response box.
+\end{itemize}
+
+\begin{verbatim}
+{
+  :signature => 'dem_01_birth_year',
+  :question_type => :demographic,
+  :question_text => %Q|Which year were you born?|,
+  :response_type => :free_response_small,
+  :other_response_params => {
+    :text_before_free_response => 19,
+    :input_max_characters => 2
+  },
+}
+\end{verbatim}
+
+\paragraph{:free\_response\_large}
+
+Respondent answers inside a large response box. This is particularly useful for asking open-ended questions or for soliciting feedback.
+
+You can specify the following optional paramters in :other\_response\_params (see section \ref{subsubsec:other_response_params}):
+
+\begin{itemize}
+\item :textarea\_width (integer) \quad The number of pixels wide the free response box is rendered
+\item :textarea\_height (integer) \quad The number of pixels high the free response box is rendered
+\end{itemize}
+
+\begin{verbatim}
+  FeedbackQuestion = {
+    :signature => 'feedback_question',
+    :question_type => :feedback,
+    :question_title => "Please share your thoughts",
+    :question_description => %Q|We are currently piloting this survey and would 
+      greatly appreciate any feedback you have.|,
+    :question_text => %Q|What did you like most about this survey?<br/>What 
+       did you like least about this survey?<br/>Is there anything you would 
+       recommend to make it better?|,
+    :response_type => :free_response_large,
+    :other_response_params => {:needs_response => false}
+  }
+\end{verbatim}
+
+\subsubsection{:other\_response\_params (hash) [optional]}\label{subsubsec:other_response_params}
+
+These are optional customizations (as a hash) that vary by the question type (see section \ref{subsubsec:question_type}). All question types accept the following customizations inside of the :other\_response\_params hash:
+
+\begin{itemize}
+\item :needs\_response (boolean) \quad If this is set to true, the page will prompt the user that they must enter an answer for this question. The default is true. 
+\end{itemize}
+
+\subsubsection{:response\_choices (string array) [required or optional]} 
+
+This is the string array that lists the answer choices for this question. This is required only for the :one\_of\_many, :multiple\_of\_many, and the :multiple\_of\_many\_as\_boxes question types.
+
+\subsubsection{:question\_title (string) [optional]}
+
+Simply the title for this question.
+
+\subsubsection{:question\_description (string) [optional]}
+
+The ``fine print'' for this question that is displayed between the title and the question prompt.
+
+\subsubsection{:question\_type (symbol) [optional]}
+
+A signifier to distinguish between different types of questions. For regular questions, leave this option out. We recommend the following options:
+
+\begin{itemize}
+\item :imc\_check \quad This signifies a trick question with the intent to detect satisficing (see \citet{Opp09}).
+\item :demographic \quad This signifies this question is a demographic question, not part of the core of the survey.
+\item :need\_for\_cognition \quad This signifies this question is part of the ``need for cognition'' assessment (see \citet{Cacioppo1984}).
+\end{itemize}
+
+\subsubsection{:submit\_text (string) [optional]}
+
+The text printed in the ``submit'' or ``continue'' button.
+
+%8 Randomization text switches (:randomization_text_switches) OPTIONAL
+%This is a hash whose key(s) are the same key found in the
+%survey's "treatment" hash. From this key, there is an array. Each
+%element of the array corresponds to one FILLIN text item preserving
+%order. Each fill in item is a hash corresponding to the possible
+%randomizations
+%
+
+%\subsubsection{}
+
+%Want to have the following features:
+%
+%
+%10 Disqualify Unless Response (:disqualify_unless_response) OPTIONAL
+%If the user didn't answer this question this certain way, they will be disqualified forever
+%
+%
+%12 No answer popup text (:no_answer_popup_message)
+%In the event the user doesn't give an answer, this is the message we popup
+%=end
+
+
+
+%\subsubsection{}
+
+
+\subsection{Creating General Questions}
+
+You can create one question hash (see section \ref{subsec:question_hash}) for each general question and add this hash to the {\tt{TrueQuestions}} array in the file {\tt{lib/survey\_true\_and\_check\_questions.rb}}
+
+
+\subsection{Creating Check Questions}\label{sec:check_questions}
+
+If you would like to give the same questions twice in order to immediately test question reliability, you can use the ``check questions'' feature. 
+
+Open the file {\tt{lib/survey\_true\_and\_check\_questions.rb}} and add the index of the question you would like to duplicate in the {\tt{TrueQuestions}} array. Remember, the first index is 0 and indices are separated by commas in Ruby arrays.
+
+\subsection{Demographic Questions}
+
+If you would like to give demographic questions, open the file {\tt{lib/survey\_demographic\_questions.rb}}, add each question hash to the {\tt{DemographicQuestions}} array. Remember to mark the {\tt{:question\_type}} key with {\tt{:demographic}}.
+
+If you change the age / gender questions, you should update the function {\tt{age\_gender\_to\_s}} found in {\tt{lib/survey\_demographic\_questions.rb}} if you want your administrator console to display correctly.
+
+\subsection{Need For Cognition Assessment}
+
+If you would like to administer the ``Need for Cognition'' assessment found in \citet{Cacioppo1984}, the 18-question assessment is found in {\tt{lib/survey\_need\_for\_cognition\_questions.rb}}.
+
+\subsection{Miscellaneous Questions}
+
+You should add miscellaneous one-off questions to the file {\tt{lib/survey\_miscellaneous\_questions.rb}} as individual question hashes (see section \ref{subsec:question_hash}). We include as examples, a sample motivation question and a sample feedback question.
+
+\subsection{The Question Order}
+
+The ``SurveyOrder'' array found in {\tt{lib/survey\_customization.rb}} allows you to control the question order of the survey. You can add whole arrays such as ``TrueQuestions'' or individual questions such as ``FeedbackQuestion''. The survey will appear in the order you set. 
+
+The example found in {\tt{lib/survey\_customization.rb}} are the true questions, however many that may be, followed by an IMC check (see \citet{Opp09}), followed by duplication check questions (see \ref{sec:check_questions}), followed by a few demographic questions, and finally, one feedback question:
+
+\begin{verbatim}
+SurveyOrder = [
+  TrueQuestions,
+  Oppenheimer99IMC1,
+  CheckQuestions,
+  DemographicQuestions,
+  FeedbackQuestion
+]
+\end{verbatim}
+
+Randomization of question order is a future feature that is not supported now.
+
+\section{Customizing the Survey Presentation}\label{sec:design_customization}
+
+\subsection{Preventing Satisficing}
+
+We encourage surveyors to use the \textit{Kapcha} anti-satisficing technology whose effectiveness was demonstrated in \citet{KapelnerChandler2010}. Set the following boolean in the customization file ({\tt{lib/survey\_customization.rb}}): 
+
+\begin{verbatim}
+UseKapcha = true
+\end{verbatim}
+
+For a more upgraded \textit{Kapcha}, you can force the fade-in to repeat when the user navigates away. This effect was not investigated in \citet{KapelnerChandler2010}, but we believe it to be effective based on trial runs. To use this set the following boolean in the same file:
+
+\begin{verbatim}
+UseKapchaDiscourageNavigation = true
+\end{verbatim}
+
+In order to exempt certain questions types (see \ref{subsubsec:question_type}) from the \texttt{Kapcha} fade-in, use the following array in the customization file. For example, the following will allow demographic and feedback questions to display without the fade-in technology:
+
+\begin{verbatim}
+QuestionTypesExemptFromKapCha = [:demographic, :feedback]
+\end{verbatim}
+
+The last anti-satisficing measure is including an exhortative message. This was shown in \citet{KapelnerChandler2010} to decrease attrition. To place the message on the bottom of the question, set the following parameter in the customization file in to ``:bottom'', to place it on the top, use ``:top'', and to omit the message, set it to nil:
+
+\begin{verbatim}
+ExhortativeMessageLocation = :top
+\end{verbatim}
+  
+To specify the message, set the following string in the customization file:
+
+\begin{verbatim}
+ExhortativeMessage = "Please answer carefully. Your responses will
+  be used for research."
+\end{verbatim}  
+
+\subsection{More Textual Customization}
+
+In the customization file, there are a few more options for presenting surveys that are not related to prevention of satisficing.
+
+\subsubsection{Separate HIT Preview Page}
+
+If you would like a separate HIT preview page, set the following boolean:
+
+\begin{verbatim}
+UseSeparatePreviewHitPage = true
+\end{verbatim}
+
+Otherwise, a worker previewing the HIT will be sent to the directions page with the continue button disabled. If the directions page differs by treatment, this may bias the selection of subjects when you run studies.
+
+\subsubsection{Question Counter}
+
+To display a counter in the top right of the survey (e.g. ``Question: 3/20''), set the following boolean:
+
+\begin{verbatim}
+ShowQuestionCounter = true
+\end{verbatim}
+
+\subsection{Design Customization}
+
+Color schemes, font-sizes, layouts (within reason), can all be changed by editing the style file {\tt{public/stylesheets/turksurveyor.css}}. The elements are self-explanatory. We recommend using firebug to iterate style changes.
+
+\section{Experimentation Using \textbf{TurkSurveyor}}
+
+\subsection{Text Manipulation Studies}
+
+To test the effect of text changes such as those found in \citet{Thaler1985, Opp09, KapelnerChandler2010}, you can use \textbf{TurkSurveyor}'s text manipulation feature.
+
+In the customization file, alter the following hash:
+
+\begin{verbatim}
+RandomizedTreatments = {
+  :place => [[:run_down, :fancy], [0.5, 0.5]]
+}
+\end{verbatim}
+
+Each key in this hash is the name of the textual change. Each value in this hash is an array of two arrays. The first array are the names of the different text strings, the second array is the probabilities associated with these text strings. For example, when the HIT above is created, it will be randomly assigned to one of two groups for the ``:place'' text.\\
+\\
+
+To create differences in the textual display of the question, we use the ``:randomization\_text\_switches'' key in the question hash (see section \ref{subsec:question_hash} for more information).
+
+For example, inserting the following key-value into a question hash would yield two different treatments:
+
+\begin{verbatim}
+:randomization_text_switches => [
+  [
+    :place,
+    {:run_down => 'run-down grocery store', 
+       :fancy => 'fancy resort'}
+  ]
+]
+\end{verbatim}
+
+Make sure the keys here correspond to the keys specified in the \texttt{RandomizedTreatments} hash specified before.
+
+This randomization specifies that the ``run down'' treatment will receive the text ``run-down grocery store'' and the second treatment will receive the text ``fancy resort''.\\
+\\
+However, where will this text be rendered? The final step is to somewhere in the question text, either in the title, text, or description, do the following:
+
+\begin{verbatim}
+:question_description => %Q|You are on the beach on a hot day.
+  For the last hour you have been thinking about how much you
+  would enjoy an ice cold can of soda. Your companion needs 
+  to make a phone call and offers to bring back a soda from
+  the only nearby place where drinks are sold, which happens
+  to be a #{FillInChars[0]}. Your companion asks how much you
+  are willing to pay for the soda and will only buy it if it
+  is below the price you state.|,
+\end{verbatim}
+
+i.e. insert the Ruby string \texttt{FillInChars[0]} at the point you want \textbf{TurkSurveyor} to render the randomization. If you would like to insert a second text manipulation, you can use \texttt{FillInChars[1]}, etc.
+
+
+
+
+
+\subsection{Presentation Method Study}
+
+We recommend you declare the different treatments as symbols in the following array in the customization file:
+
+\begin{verbatim}
+Treatments = [:regular]
+\end{verbatim}
+
+A bit of infrastructure is already built for you. Different treatments may need different text on the HIT introduction / directions page. This can be changed by editing the hash in the customization file:
+
+\begin{verbatim}
+TreatmentDirectionText = {
+  :regular => "Please take the time to carefully read the
+    instructions for each question and to give an accurate 
+    and honest answer."
+}
+\end{verbatim}
+
+Beyond this, best of luck designing the code for the experiment to test between presentation methods. For an example, you may want to download the code used for the \citet{KapelnerChandler2010} study (\href{http://danachandler.com/kapchastudy.html}{http://danachandler.com/kapchastudy.html} ) and look at the code which tested for the ``timing control''.
+
+\subsection{Experimental Versions}
+
+During a study, you will find you are iterating as data comes in. To ensure each of your data points are consistent, we use experimental versioning. In the customization file, we change the experimental version by editing:
+
+\begin{verbatim}
+CURRENT_EXPERIMENTAL_VERSION_NO = 1
+\end{verbatim}
+
+As for HIT listings in the administrator console, we may want to show HITs from more than one of versions. We can control this by editing the following array in the customization file:
+
+\begin{verbatim}
+ExperimentalVersionsToShow = [1, 3, 7]
+\end{verbatim}
+
+\section{The Administrator Console}\label{sec:admin_console}
+
+Once the rails server is running the code, you can access the administrator console. Navigate to your server's URL and enter the administrator password you specified.\footnote{i.e. in \texttt{lib/personal\_information.rb}}
+
+Note that the ``cleanup MTurk'' function deletes all expired HIT listngs from the MTurk account. Note that the coded data dump is the same as the regular data dump as in it outputs the survey data in CSV, but the responses are coded and not raw text.
+
+\section{Development}
+
+\subsection{Platform Information}
+
+\textbf{TurkSurveyor} is written in Rails 2.1.0 and Ruby 1.8.6 although we hope this will be upgraded to newer technology soon. Rails is database-agnostic within reason. For information about downloading and setting up Ruby, Rails, and dependencies go to:\\
+
+\href{http://rubyonrails.org/download}{http://rubyonrails.org/download}\\
+
+Make sure you also install the gems described in section \ref{subsec:deployment}.
+
+\subsection{Add a database file}
+
+You need to create the database configuration file (\texttt{config/database.yml}) which is \textit{not} included in the repository due to its personal nature.
+
+You can copy the template in figure \ref{code:database.yml} and then change the text inside angle brackets.\footnote{For more information, see \href{http://www.tutorialspoint.com/ruby-on-rails/rails-database-setup.htm}{http://www.tutorialspoint.com/ruby-on-rails/rails-database-setup.htm}} After you create this file, make sure you create the databases you have specified.
+
+\begin{figure}[htp]
+\centering
+\lstinputlisting{source_examples/database.yml}
+\caption{Template for \texttt{config/database.yml}}
+\label{code:database.yml}
+\end{figure}
+
+\subsection{Code Contributions}
+
+We appreciate any contribution you can make to this project. We will maintain a list of want-to-have's at the source code's homepage, where contribution is especially encouraged.
+
+\subsection{Files you should not Commit}
+
+Do not commit any of the private files (\texttt{lib/personal\_information.rb} and \texttt{config/database.yml}) as well as your log files, temp files, etc.
+
+\bibliographystyle{plainnat}
+\bibliography{turksurveyor_manual_refs}
+
+\end{document}

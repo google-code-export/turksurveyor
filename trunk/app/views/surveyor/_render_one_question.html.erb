@@ -1,0 +1,47 @@
+<div id="survey_body">
+  <script type="text/javascript">
+    //used elsewhere, so define globally here
+    var browser_focused = false; //can we make window.detect() function instead??
+  </script>
+  <form action="/surveyor/one_question_answered" method="post" id="response_form">
+    <input type="hidden" name="survey_id" value="<%= @s.id %>" />
+    <input type="hidden" name="question_type" value="<%= @q[:question_type] %>" />
+    <input type="hidden" name="signature" id="question_signature" value="<%= @q[:signature] %>" />
+    <input type="hidden" name="responses" id="response_form_text" />
+  </form>
+  <%= render :partial => 'question_header' %>
+  <% if Survey::ExhortativeMessageLocation == :top %>
+    <div id="exhortation">
+      <%= Survey::ExhortativeMessage %>
+    </div>
+  <% end %>
+  <% if @q[:question_title] %>
+    <div id="question_title">
+      <span id="question_title_wrap"><%= @q[:question_title] %></span>
+    </div>
+  <% end %>
+  <% if @q[:question_description] %>
+    <div id="question_description">
+      <%= kapcha_tokenize(@q[:question_description], Survey.use_kapcha?(@q[:question_type])) %>
+    </div>
+  <% end %>
+  <div id="question_text">
+    <%= kapcha_tokenize(@q[:question_text], Survey.use_kapcha?(@q[:question_type])) %>
+  </div>
+  <div id="question_responses"><%= render :partial => "surveyor_responses/#{@q[:response_type]}_responses" %></div>
+  <%= render :partial => 'oppenheimer_imc_check_html' if @q.equal?(Survey::Oppenheimer99IMC1) %>
+  <% if Survey::ExhortativeMessageLocation == :bottom %>
+    <div id="exhortation">
+      <%= Survey::ExhortativeMessage %>
+    </div>
+  <% end %>
+  <% if Survey.use_kapcha?(@q[:question_type]) %>
+    <script type="text/javascript">
+      var kapcha = new KapCha(<%= Survey::KapChaWordsPerMinute %>, <%= Survey::UseKapchaDiscourageNavigation %>);
+    </script>
+  <% end %>
+  <%= render :partial => 'active_inactive_browser' %>
+</div>
+<script type="text/javascript">
+  var response_delimeter = '<%= Survey::ResponseDelimiter %>';
+</script>

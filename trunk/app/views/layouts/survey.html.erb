@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "=//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <title>Short Survey</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <%= stylesheet_link_merged :base %>
+    <%= javascript_include_merged :base %>
+  </head>
+  <body>
+    <center>
+      <div id="app">
+        <%= yield :layout %>
+      </div>
+      <div id="no_app" style="display:none;">
+        This type of HIT only works with <%= link_to 'Firefox', 'http://www.firefox.com', {:target => '_blank'} %> and MS Windows.
+      </div>
+      <script type="text/javascript">
+        //ensure browser and OS is compatible
+        //if (window.navigator.userAgent.match("Firefox") != null && window.navigator.userAgent.match("Windows") != null){
+        //  $('app').show();//we're cruising with Firefox and Windows          
+        //}
+        //else {
+        //  $('no_app').show();
+        //}
+      </script>  
+    </center>
+    <% if RAILS_ENV != 'development' %>
+      <!-- Insert Google Analytics here -->
+    <% end %>
+  </body>
+</html>

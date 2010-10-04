@@ -1,0 +1,66 @@
+<% if s.paid? %>
+  <span style="color:green;"><%= s.bonus.nil? ? "paid" : "bonus (#{s.bonus})" %></span>
+<% elsif s.rejected? %>
+  <span style="color:red;">rej</span>
+<% elsif s.completed? %>
+  <div id="pay_bonus_or_reject_<%= s.id %>">
+    <table>
+      <tr>
+        <td><%= link_to 'pay', 'javascript:void(0);', :onclick => "BonusPayment(#{s.id});" %></td>
+        <td>
+          <input
+            type="text"
+            maxlength="4"
+            id="bonus_value_<%= s.id %>"
+            style="width:30px;"
+            value="<%= s.default_bonus %>"
+            onclick="this.value = '';"
+            onkeydown="if (event.keyCode == 13){BonusPayment(<%= s.id %>);}" />
+        </td>
+        <td><%= link_to 'rej', 'javascript:void(0);', :onclick => "RejectHIT(#{s.id});", :confirm => "Are you sure you want to reject this HIT?" %></td>
+      </tr>
+    </table>
+  </div>
+  <% unless @js_for_pay_bonus_or_reject %>
+    <% @js_for_pay_bonus_or_reject = true %>
+    <script type="text/javascript">
+      function BonusPayment(id){
+        var bonus = $('bonus_value_' + id).value;
+        //make sure user wants to give a bonus
+        //if (parseFloat(bonus) > 0){
+        //  if (!confirm("Are you sure you want to give a $" + bonus + " bonus?")){
+        //    return;
+        //  }
+        //}
+        $('pay_bonus_or_reject_' + id).update(spinnerHTMLforspanssmall);
+        var r = new Ajax.Request(
+          '/admin/pay',
+          {
+            method: 'post',
+            parameters: 'id=' + id + '&bonus=' + bonus,
+            onComplete: function(response){
+              $('pay_bonus_or_reject_' + id).update(response.responseText);
+            }
+          }
+        );
+      }
+      
+      function RejectHIT(id){
+        if (!confirm("Are you sure you want to reject this HIT?")){
+          return;
+        }
+        $('pay_bonus_or_reject_' + id).update(spinnerHTMLforspanssmall);
+        var r = new Ajax.Request(
+          '/admin/reject',
+          {
+            method: 'post',
+            parameters: 'id=' + id,
+            onComplete: function(response){
+              $('pay_bonus_or_reject_' + id).update(response.responseText);
+            }
+          }
+        );
+      }
+    </script>
+  <% end %>
+<% end %>

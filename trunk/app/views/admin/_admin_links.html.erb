@@ -1,0 +1,12 @@
+<%= link_to 'Home', {:action => :index} %>&nbsp;&nbsp;
+<%= link_to 'Investigate Abandoned HITs', {:action => :investigate_attrition}, {:target => '_blank'} %>&nbsp;&nbsp;
+<!--<%= link_to 'Investigate Buggy HITs', {:action => :buggy_hits}, {:target => '_blank'} %>&nbsp;&nbsp;-->
+<%= link_to 'Dashboard', {:action => :dashboard}, {:target => '_blank'} %>&nbsp;&nbsp;
+<%= link_to 'Feedbacks Page', {:action => :comments_page}, {:target => '_blank'} %>&nbsp;&nbsp;
+<% if RAILS_ENV != 'production' %>
+  <%= link_to 'Nuke Database', :action => :nuke %>&nbsp;&nbsp;
+<% end %>
+<%= link_to 'Nuke Dev Workers', :action => :nuke_dev_workers %>&nbsp;&nbsp;
+<%= link_to 'Cleanup MTurk', :action => :cleanup_mturk %>&nbsp;&nbsp;
+<%= link_to 'Version Information', {:action => :versions}, {:target => '_blank'} %>&nbsp;&nbsp;
+<%= link_to 'Data Dump', {:action => :data_dump} %> <%= link_to '(coded)', {:action => :data_dump, :coded => true} %>&nbsp;&nbsp;

@@ -1,0 +1,21 @@
+<h3>Notes on this survey</h3>
+
+<div style="text-align:center;">
+  <textarea id="notes" style="width:400px; height:200px;"><%= @s.notes %></textarea><br />
+  <input type="button" value=" Save " id="save_button" onclick="SaveNotes();">
+</div>
+<script type="text/javascript">
+  function SaveNotes(version){
+    $('save_button').disabled = true;
+    var r = new Ajax.Request(
+      '/admin/update_survey_notes',
+      {
+        method: 'post',
+        parameters: 'id=<%= @s.id %>&notes=' + encodeURIComponent($('notes').value),
+        onComplete: function(response){
+          $('save_button').disabled = false;
+        }
+      }
+    );
+  }
+</script>

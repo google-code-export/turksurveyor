@@ -1,0 +1,15 @@
+<% if Survey::ShowQuestionCounter or Survey::SurveyTitle %>
+  <table width="100%">
+    <tr>
+      <td width="20%"></td>
+      <td width="60%">
+        <div id="survey_title"><%= Survey::SurveyTitle %></div>
+      </td>
+      <td width="20%">
+        <div id="header" style="text-align:right; <% unless Survey::ShowQuestionCounter %>display:none;<% end %>">
+          Question: <%= @s.num_questions_completed + 1 %> / <%= Survey::NumTotalQuestions %>
+        </div>
+      </td>
+    </tr>
+  </table>
+<% end %>

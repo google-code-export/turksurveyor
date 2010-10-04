@@ -1,0 +1,3 @@
+# We want 200 hits (i.e. 50 sets) to appear at 10AM, 4PM, 10PM, 4AM EST (ie 14:00, 20:00, 2:00, 8:00 UTC)
+#
+0 2,8,14,20 * * * /usr/local/bin/ruby -C /home/aptana/homes/<project name>/public/web/current script/runner "Survey.create_n_hit_sets(50)" -e production

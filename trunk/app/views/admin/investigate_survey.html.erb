@@ -1,0 +1,16 @@
+<h3>ID: <%= @s.id %> / <%= @s.mturk_worker_id || '(no worker ID)' %> / <%= @s.treatment_to_s %> / <%= @s.age_gender_to_s %> / IMC:
+<%= case @s.passed_imc?
+      when true then %Q|<span style="color:green;">PASS</span>|
+      when false then %Q|<span style="color:red;">FAILED</span>|
+      when nil then "(not taken)"
+    end %></h3>
+
+<%= render :partial => 'investigate_all_questions' %>
+<%= render :partial => 'survey_notes' %>
+<input
+  type="checkbox"
+  checked="checked"
+  worker_id="<%= @s.mturk_worker_id %>"
+  class="worker_send_checkbox"
+  style="display:none;" />
+<%= render :partial => 'email_workers' %>

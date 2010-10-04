@@ -1,0 +1,27 @@
+<div id="survey_body">
+  <div id="question_title">
+    <span id="question_title_wrap">Welcome to the short survey!</span>
+  </div>
+  
+  <h4>Directions</h4>
+
+  In this HIT, you will be asked <%= Survey::NumTotalQuestions %> questions.
+  <br />
+  <br />
+  <% if Survey::TreatmentDirectionText[@s.treatment[:run]] %>
+    <%= Survey::TreatmentDirectionText[@s.treatment[:run]] %>
+    <br />
+    <br />
+  <% end %>
+  Click to begin once you are ready.
+  <div style="margin:20px; text-align:center;">
+    <% if @preview %>
+      <input type="button" value=" Begin " disabled="true" />
+    <% else %>
+      <form action="/surveyor/read_directions" method="post">
+        <input type="hidden" name="id" value="<%= @s.id %>" />
+        <input type="submit" value=" Begin " />
+      </form>
+    <% end %>
+  </div>
+</div>

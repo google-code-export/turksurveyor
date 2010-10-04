@@ -1,0 +1,59 @@
+<table width="100%" cellspacing="0">
+  <tr>
+    <th align="left">Signature</th>
+    <th align="left">Response(s)</th>
+    <th align="center" width="10%">Timestamp</th>
+  </tr>
+  <% unless @s.did_not_read_directions_yet? %>
+    <tr>
+      <td align="left" colspan="2">Started (clicked on "begin")</td>
+      <td align="center"><%= @s.read_directions_at.strftime('%m/%d %H:%M:%S') %></td>
+    </tr>
+  <% end %>
+  <% @actions.each_with_index do |q, i| %>
+      <% if q.class == BrowserStatus %>
+        <tr style="background-color: rgb(230,230,255);">
+          <td align="left" valign="top"></td>
+          <td align="left" valign="top"><%= q.status %></td>
+          <td align="center" valign="top"><%= q.created_at.strftime('%m/%d %H:%M:%S') %></td>
+        </tr>
+      <% else %>
+        <tr>
+          <td align="left" valign="top"><%= q[:signature] %></td>
+          <td align="left" valign="top">
+            <% if q[:responses].class == String %>
+              <% pieces = q[:responses].split(Survey::ResponseDelimiter) %>
+              <%= pieces.length == 1 ? q[:responses] : '&bull;&nbsp;' + q[:responses].split(Survey::ResponseDelimiter).join('<br />&bull;&nbsp;') %>
+            <% else %>
+              <%= q[:responses] %>
+            <% end %>
+          </td>
+          <td align="center" valign="top"><%= q[:responded_at].strftime('%m/%d %H:%M:%S') %></td>
+        </tr>
+      <% end %>
+
+  <% end %>
+  <% unless @s.finished_at.nil? %>
+    <tr>
+      <td align="left" colspan="2">Finished (submitted to MTurk)</td>
+      <td align="center"><%= @s.finished_at.strftime('%m/%d %H:%M:%S') %></td>
+    </tr>
+  <% end %>
+  <% if @s.completed? %>
+    <tr>
+      <td colspan="2">Total Time for questions (min)</td>
+      <td><%= convert_seconds_to_time(@s.total_time_for_questions_in_sec) %></td>
+    </tr>
+    <tr>
+      <td colspan="2">Total Time for feedback (min)</td>
+      <td><%= convert_seconds_to_time(@s.total_time_for_feedback_in_sec) %></td>
+    </tr>
+  <% end %>
+  <% if @s.completed? %>
+    <tr>
+      <td colspan="3" align="right">
+        <%= render :partial => 'pay_and_or_bonus_or_reject', :locals => {:s => @s} %>
+      </td>
+    </tr>
+  <% end %>
+</table>

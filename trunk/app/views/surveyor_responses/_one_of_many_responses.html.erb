@@ -1,0 +1,50 @@
+<% needs_response = @q[:other_response_params][:needs_response] || Survey::NeedsResponseDefault %>
+<center>
+  <table style="align:left;">
+    <% @q[:response_choices].each_with_index do |choice, i| %>
+    <tr>
+      <td valign="top">
+        <input
+          type="radio"
+          value="<%= choice %>"
+          id="choice_<%= i %>"
+          name="response"
+          class="kapcha_control"
+          style="<%= 'display:none;' if Survey.use_kapcha?(@q[:question_type]) %>" />
+      </td>
+      <td>
+        <label for="choice_<%= i %>">
+          <%= kapcha_tokenize(choice, Survey.use_kapcha?(@q[:question_type])) %>
+        </label>
+      </td>
+    </tr>
+    <% end %>
+  </table>
+</center>
+<br />
+<input 
+  type="button"
+  value=" <%= @q[:submit_text] || Survey::DefaultSubmitText %> "
+  onclick="SubmitSurvey();"
+  class="kapcha_control"
+  id="kapcha_submit_button"
+  style="<%= 'display:none;' if Survey.use_kapcha?(@q[:question_type]) %>" />
+  
+<script type="text/javascript">
+  function SubmitSurvey(){
+    $$('input[type = radio]').each(function(checkbox){
+      if (checkbox.checked){ //since only one can be checked anyway, we can be lazy here...
+        $('response_form_text').value = encodeURIComponent(checkbox.value);
+      }
+    });
+    //make sure they answered the question
+    <% if needs_response %>
+      //make sure they answered the question (only check if surveyor deems it necessary)
+      if ($('response_form_text').value == ''){
+        alert('You must fill in an answer.');
+        return;
+      }
+    <% end %>
+    $('response_form').submit();
+  }
+</script>

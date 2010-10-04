@@ -1,0 +1,44 @@
+<script type="text/javascript">
+  <% if Survey::UseKapchaDiscourageNavigation and Survey.use_kapcha?(@q[:question_type]) %>
+    window.onload = function (){
+      document.onmousemove = function(){
+        kapcha.start_fading_in();
+      }
+    }
+  <% end %>
+
+  function onBlur() {
+    browser_focused = false;
+    RecordFocusOrUnfocus('blurred');
+    <% if Survey::UseKapchaDiscourageNavigation and Survey.use_kapcha?(@q[:question_type]) %>
+      //disappear all text
+      kapcha.rewind();
+    <% end %>
+  };
+  function onFocus(){
+    browser_focused = true;
+    RecordFocusOrUnfocus('focused');
+    <% if Survey::UseKapchaDiscourageNavigation and Survey.use_kapcha?(@q[:question_type]) %>
+      //start fading in all text
+      kapcha.start_fading_in();
+    <% end %>
+  };
+  if (/*@cc_on!@*/false) { // check for Internet Explorer
+    document.onfocusin = onFocus;
+    document.onfocusout = onBlur;
+  }
+  else {
+    window.onfocus = onFocus;
+    window.onblur = onBlur;
+  }
+
+  function RecordFocusOrUnfocus(status){
+    var r = new Ajax.Request(
+      '/surveyor/record_focus_or_unfocus',
+      {
+        method: 'post',
+        parameters: 'survey_id=<%= @s.id %>&status=' + status
+      }
+    );
+  }
+</script>

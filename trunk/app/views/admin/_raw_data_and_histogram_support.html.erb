@@ -1,0 +1,47 @@
+<h3>Data and Histogram<a name="data_and_histograms"></a></h3>
+
+<div id="data_display" style="padding:10px; margin:10px;"></div>
+<div id="histogram" style="padding:10px; margin:10px; width:600px; height:300px;"></div>
+
+<script type="text/javascript" src="/javascripts/lib/canvas2image.js"></script>
+<script type="text/javascript" src="/javascripts/lib/canvastext.js"></script>
+<script type="text/javascript" src="/javascripts/flotr-0.2.0-alpha.js"></script>
+<script type="text/javascript">
+  var BinWidth = 0.25;
+  function ShowHistogram(data){
+    //find min / max
+    var min = 99999;
+    var max = -99999;
+    for (var i = 0; i < data.length; i++){
+      var x = data[i];
+      if (x < min){
+        min = x;
+      }
+      if (x > max){
+        max = x;
+      }
+    }
+
+    //create the bins
+    var bins = [];
+    for (var i = 0; i < data.length; i++){
+      var x = data[i];
+      //now figure out its bin
+      var b = Math.floor((x - min) / BinWidth);
+      if (bins[b] == undefined){
+        bins[b] = 1;
+      }
+      else {
+        bins[b]++;
+      }
+    }
+    //create the data to pass to flotr
+    var flotr_data = [];
+    for (var b = 0; b < bins.length; b += 1){
+      var val = bins[b] == undefined ? 0 : bins[b];
+      flotr_data.push([min + b * BinWidth, val]);
+    }
+    //actually draw it
+    Flotr.draw($('histogram'), [flotr_data], {bars: {show:true, barWidth:BinWidth}, yaxis: {min: 0}, xaxis: {min: min - 1, max: max + 1}});
+  }
+</script>

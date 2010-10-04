@@ -1,0 +1,47 @@
+<% maxlength = @q[:other_response_params][:input_max_characters] || Survey::InputMaxCharactersDefault %>
+<% needs_response = @q[:other_response_params][:needs_response] || Survey::NeedsResponseDefault %>
+<span 
+  style="font-size:12px; <%= 'display:none;' if Survey.use_kapcha?(@q[:question_type]) %>"
+  class="kapcha_control"><%= @q[:other_response_params][:text_before_free_response] || '' %></span><input
+  type="text"
+  maxlength="<%= maxlength %>"
+  id="free_response"
+  style="width:<%= maxlength * 10 %>px; <%= 'display:none;' if Survey.use_kapcha?(@q[:question_type]) %>"
+  class="kapcha_control" /><span 
+  style="font-size:12px; <%= 'display:none;' if Survey.use_kapcha?(@q[:question_type]) %>"
+  class="kapcha_control"><%= @q[:other_response_params][:text_after_free_response] || '' %></span>
+<br />
+<% if @q[:other_response_params][:text_underneath_free_response] %>
+  <span 
+    style="font-size:12px; <%= 'display:none;' if Survey.use_kapcha?(@q[:question_type]) %>"
+    class="kapcha_control"><%= @q[:other_response_params][:text_underneath_free_response] %></span>
+  <br />  
+<% end %>
+<br />
+<input
+  type="button"
+  value=" <%= @q[:submit_text] || Survey::DefaultSubmitText %> "
+  onclick="SubmitSurvey();"
+  class="kapcha_control"
+  id="kapcha_submit_button"
+  style="<%= 'display:none;' if Survey.use_kapcha?(@q[:question_type]) %>" />
+  
+<script type="text/javascript">
+  function SubmitSurvey(){
+    $('response_form_text').value = encodeURIComponent($('free_response').value);
+    //make sure they answered the question
+    <% if needs_response %>
+      //make sure they answered the question (only check if surveyor deems it necessary)
+      if ($('response_form_text').value == ''){
+        alert('You must fill in an answer.');
+        return;
+      }
+    <% end %>
+    $('response_form').submit();
+  }
+  <% unless Survey.use_kapcha?(@q[:question_type]) %>
+    Event.observe(window, 'load', function(){
+      $('free_response').focus();
+    });
+  <% end %>
+</script>

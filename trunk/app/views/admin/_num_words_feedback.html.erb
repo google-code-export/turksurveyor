@@ -1,0 +1,8 @@
+<td align="center" valign="center">
+  <% f1 = s.get_question_response('feedback_question') %>
+  <% f2 = s.get_question_response('kapcha_speed_question') %>
+  <% responses = (f1.nil? ? '' : (f1 == 0 ? '' : f1.to_s)) + (f2.nil? ? '' : (f2 == 0 ? '' : f2.to_s)) %>
+  <% num_words_feedback = responses.split(/\s/).length %>
+  <%= num_words_feedback if num_words_feedback > 0 %>
+</td>
+<td align="center" valign="center"><%= s.completed? ? convert_seconds_to_time(s.total_time_for_feedback_in_sec) : 'N/A' %></td>

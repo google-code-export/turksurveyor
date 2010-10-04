@@ -1,0 +1,7 @@
+<% if @preview and Survey::UseSeparatePreviewHitPage %>
+  <%= render :partial => 'preview_hit' %>
+<% elsif @s.did_not_read_directions_yet? %>
+  <%= render :partial => 'basic_directions' %>
+<% else %>
+  <%= render :partial => 'render_one_question' %>
+<% end %>

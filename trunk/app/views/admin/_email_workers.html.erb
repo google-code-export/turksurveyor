@@ -1,0 +1,57 @@
+<div id="emailing_function">
+  <h3>Email worker(s)</h3>
+  subject:<br />
+  <input type="text" style="width:600px;" id="subject_field" value="question about your survey HIT" /><br />
+  body:<br />
+  <textarea style="width:600px; height:200px;" id="body_field">
+Hello,
+
+
+
+Respectfully,
+<%= PersonalInformation::MTurkWorkerContactFormSignature %>
+  </textarea><br />
+  <input type="button" value=" Send Emails " id="send_email_button" onclick="SendEmails();" />
+</div>
+<script type="text/javascript">
+  function UnSlashCheckAll(checked){
+    $$('input.worker_send_checkbox').each(function(checkbox){
+      checkbox.checked = checked;
+    });
+  }
+
+  function SendEmails(){
+    var subject = encodeURIComponent($('subject_field').value);
+    var body = encodeURIComponent($('body_field').value);
+
+    var worker_ids = [];
+    $$('input.worker_send_checkbox').each(function(checkbox){
+      if (checkbox.checked){
+        worker_ids.push(checkbox.getAttribute('worker_id'));
+      }
+    });
+
+    if (worker_ids.size() == 0){
+      alert("You must select at least one worker.");
+      return;
+    }
+
+    if (worker_ids.size() > 100){
+      alert("You cannot select more than 100 workers.");
+      return;
+    }
+
+    $('send_email_button').disabled = true;
+    var r = new Ajax.Request(
+      '/admin/send_emails_to_workers',
+      {
+        method: 'post',
+        parameters: 'worker_ids=' + worker_ids.join(',') + '&subject=' + subject + '&body=' + body,
+        onComplete: function(response){
+          $('send_email_button').disabled = false;
+          alert(response.responseText);
+        }
+      }
+    );
+  }
+</script>

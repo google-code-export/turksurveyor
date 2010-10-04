@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "=//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <title><% if RAILS_ENV == 'development' %>DEVELOPMENT <% end %><%= @title ? @title : PersonalInformation::ProjectName %></title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <%= stylesheet_link_merged :base %>
+    <%= javascript_include_merged :base %>
+    <% if @google_visualization %>
+      <script type='text/javascript' src='http://www.google.com/jsapi'></script>
+      <script type='text/javascript'>
+        google.load('visualization', '1', {'packages':['annotatedtimeline']});
+      </script>
+    <% end %>
+  </head>
+  <body style="background-color:rgb(<% if RAILS_ENV == 'development' %>230,230,100<% else %>120,100,100<% end %>);">
+    <center>
+      <div style="margin:10px;">
+        <% rounded_div :radius => RoundedCorner::AlertRadius, :border_color => RoundedCorner::White, :interior_color => RoundedCorner::White do %>        
+          <div id="main">
+            <h2 style="margin-top:0"><% if RAILS_ENV == 'development' %>DEV <% end %><%= PersonalInformation::ProjectName %> Portal</h2>
+            <%= yield :layout %>
+          </div>
+        <% end %>
+      </div>
+      <%= render :partial => 'shared/bottom_links' %>
+    </center>
+    <script type="text/javascript">
+      <% if flash[:error] or flash[:notice] %>
+        alert('<%= flash[:error] || flash[:notice] %>');
+      <% end %>
+    </script>
+    <% if RAILS_ENV != 'development' %>
+      <!-- Insert Google Analytics here -->
+    <% end %>
+  </body>
+</html>

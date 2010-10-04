@@ -1,0 +1,45 @@
+<h2>Comments for Completed Surveys</h2>
+
+<%= render :partial => 'treatment_links_and_all_hits', :locals => {:surveys => @surveys, :show_listings_and_email => false} %>
+
+<div style="margin:5px; padding:5px; border: 1px solid black;">
+  <h3>All HITs (<%= @surveys.length %>)</h3>
+  <table width="100%" align="center" BORDER=1 RULES=ALL FRAME=VOID>
+    <tr>
+      <th align="center">ID</th>
+      <th align="center">Ver #</th>
+      <th align="center">A/G</th>
+      <th align="center">Treatment</th>
+      <th align="center">Word Count (time)</th>
+      <th align="left">Comments</th>      
+      <th align="center">Pay / Reject</th>
+      <th align="center">Email</th>
+    </tr>
+    <% @surveys.reverse.each do |s| %>
+      <tr <% if s.paid? or s.rejected? %>style="background-color:rgb(200,200,200);"<% end %>>
+        <td align="center" valign="top"><%= link_to s.id, {:action => :investigate_survey, :id => s.id}, {:target => '_blank'} %></td>
+        <td align="center" valign="top"><%= s.version %></td>
+        <td align="center" valign="top" style="font-size:8px;"><%= s.age_gender_to_s %></td>
+        <td align="center" valign="top" style="font-size:8px;"><%= s.treatment_to_s %></td>
+        <% feedback1 = s.survey_questions.detect{|q| q[:signature] == 'feedback_question'}.responses %>
+        <% q2 = s.survey_questions.detect{|q| q[:signature] == 'kapcha_speed_question'} %>
+        <% feedback2 = q2.nil? ? nil : q2.responses %>
+        <td align="center" valign="top">
+          <%= feedback1.split(/\s/).length if feedback1.class == String %>
+          <%= "/ #{feedback2.split(/\s/).length}" if feedback2 and feedback2.class == String %>
+          (<%= convert_seconds_to_time(s.total_time_for_feedback_in_sec) %>)
+        </td>
+        <td align="left" valign="top">
+          <%= feedback1 %><% if feedback2 %><br /><hr /><%= feedback2 %><% end %>
+        </td>
+        <td align="center" valign="top" style="font-size:6px;">
+          <%= render :partial => 'pay_and_or_bonus_or_reject', :locals => {:s => s, :page => 'comments_page'} %>
+        </td>
+        <td align="center" valign="top" style="font-size:8px;">
+          <input type="checkbox" worker_id="<%= s.mturk_worker_id %>" class="worker_send_checkbox" />
+        </td>
+      </tr>
+    <% end %>
+  </table> 
+</div>
+<%= render :partial => 'email_workers' %>

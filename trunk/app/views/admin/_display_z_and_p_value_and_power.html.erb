@@ -1,0 +1,12 @@
+<% z = two_proportion_z_test_unpooled(r_1, n_1, r_2, n_2) %>
+<% p = two_tailed_normal_probability(z) %>
+<td align="center">
+  <span style="color:<%= p.nil? ? 'black' : (p < StatisticsTools::AlphaLevel ? 'green' : 'red') %>;">
+    z = <%= digits_round(z, 2) %>,<br />
+    p = <%= digits_round(p, 3) %><br />
+  </span>
+  <% beta = power_of_two_prop_z_test(r_1, n_1, r_2, n_2) %>
+  <span style="color:<%= beta.nil? ? 'black' : (beta > 1 - StatisticsTools::AlphaLevel ? 'green' : 'red') %>;">
+    &beta; = <%= digits_round((beta || 0) * 100, 1) %>%
+  </span>
+</td>

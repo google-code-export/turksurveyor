@@ -1,0 +1,40 @@
+<table>
+  <tr>
+    <th>Version</th>
+    <th>Description</th>
+    <th>Save</th>
+  </tr>
+  <% @version_infos.each do |vi| %>
+    <tr>
+      <td><%= vi.version %></td>
+      <td>
+        <textarea id="description_<%= vi.version %>" style="width:400px; height:200px;"><%= vi.description %></textarea>
+      </td>
+      <td>
+        <input type="button" value=" Save " id="save_button_<%= vi.version %>" onclick="SaveDescription(<%= vi.version %>);">
+      </td>
+    </tr>
+  <% end%>
+  <tr>
+    <td colspan="3" style="text-align:center;">
+      <form action="/admin/create_new_version_info" method="post">
+        <input type="submit" value=" Create New Version " />
+      </form>
+    </td>
+  </tr>
+</table>
+<script type="text/javascript">
+  function SaveDescription(version){
+    $('save_button_' + version).disabled = true;
+    var r = new Ajax.Request(
+      '/admin/update_version_description',
+      {
+        method: 'post',
+        parameters: 'version=' + version + '&description=' + encodeURI($('description_' + version).value),
+        onComplete: function(response){
+          $('save_button_' + version).disabled = false;
+        }
+      }
+    );    
+  }
+</script>
