@@ -1,0 +1,15 @@
+<% if surveys.empty? %>
+  (No HITs)
+<% else %>
+  <% if Survey::Treatments.length > 1 %>
+    <%= link_to 'all', :treatment => nil %>
+    <% Survey::Treatments.each do |treatment| %>
+      <%= link_to treatment, :treatment => treatment %>
+    <% end %>
+  <% end %>
+  <% if show_listings_and_email %>
+    <%= render :partial => 'all_hits', :locals => {:surveys => surveys} %>
+    <%= render :partial => 'email_workers' %>
+  <% end %>
+<% end %>
+<br />

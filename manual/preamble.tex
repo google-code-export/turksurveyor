@@ -1,0 +1,41 @@
+
+%%%%%%%%%packages
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{placeins}
+\usepackage[round]{natbib}
+%\usepackage{amsmath}
+%\usepackage{amsfonts}
+\usepackage{listings}
+%\usepackage{appendix}
+\usepackage{hyperref}
+
+%%%%%%%%%%resize margins to something more reasonable
+\oddsidemargin    0in             % in addition to the 1in left margin
+\textwidth        6.5in                % allows for 1in right margin
+\topmargin        0in                % in addition to the 1in top margin
+\headheight       0in                % height left for a header line
+\headsep          0in                % distance between header and body
+\textheight       9.05in                % leave 1in bottom margin
+
+%create definition to allow local margin changes
+\def\changemargin#1#2{\list{}{\rightmargin#2\leftmargin#1}\item[]}
+\let\endchangemargin=\endlist 
+
+%define colors and color typesetting conveniences
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{black}{rgb}{0,0,0}
+\definecolor{white}{rgb}{1,1,1}
+\definecolor{blue}{rgb}{0.5,0.5,1}
+\newcommand{\inblue}[1]{\color{blue}#1\color{black}}
+\definecolor{backgcode}{rgb}{0.97,0.97,0.8}
+\definecolor{Brown}{cmyk}{0,0.81,1,0.60}
+\definecolor{OliveGreen}{cmyk}{0.64,0,0.95,0.40}
+\definecolor{CadetBlue}{cmyk}{0.62,0.57,0.23,0}
+
+
+%configures how Ruby code is displayed when included:
+\lstset{language = Ruby, backgroundcolor = \color{backgcode}, keywordstyle = \color{CadetBlue}, identifierstyle = \color{CadetBlue}, commentstyle = \color{Brown},  breaklines = true, showstringspaces = false, tabsize = 2, fontadjust = true}
+
+%title specifics
+\title{TurkSurveyor Manual}

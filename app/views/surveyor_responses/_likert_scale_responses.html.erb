@@ -1,0 +1,55 @@
+<% likert_min_score = @q[:other_response_params][:likert_min_score] || Survey::LikertMinScoreDefault %>
+<% likert_max_score = @q[:other_response_params][:likert_max_score] || Survey::LikertMaxScoreDefault %>
+<% likert_descriptions = @q[:other_response_params][:likert_descriptions] %>
+<% needs_response = @q[:other_response_params][:needs_response] || Survey::NeedsResponseDefault %>
+<table width="100%">
+  <tr>
+    <% likert_min_score.upto(likert_max_score) do |score| %>
+      <td>
+        <input type="radio" value="<%= score %>" id="score_<%= score - likert_min_score %>" name="score" class="kapcha_control" style="display:none;" />
+        <label for="score_<%= score - likert_min_score %>"><%= kapcha_tokenize(score, Survey.use_kapcha?(@q[:question_type])) %></label>
+      </td>
+    <% end %>
+  </tr>
+  <% if likert_descriptions %>
+    <tr style="font-size:12px;">
+      <% likert_descriptions.each_with_index do |desc, i| %>
+        <td valign="top" align="center">
+          <div style="width:60px;">
+            <% unless desc.nil? %>
+              <label for="score_<%= i %>" style="text-align:center;"><%= kapcha_tokenize(desc, Survey.use_kapcha?(@q[:question_type])) %></label>
+            <% end %>
+          </div>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>
+<br />
+<br />
+<input 
+  type="button"
+  value=" <%= @q[:submit_text] || Survey::DefaultSubmitText %> "
+  onclick="SubmitSurvey();"
+  class="kapcha_control"
+  id="kapcha_submit_button"
+  style="display:none;" />
+
+<script type="text/javascript">
+  function SubmitSurvey(){
+    $$('input[type = radio]').each(function(checkbox){
+      if (checkbox.checked){ //since only one can be checked anyway, we can be lazy here...
+        $('response_form_text').value = encodeURIComponent(checkbox.value);
+      }
+    });
+    //make sure they answered the question
+    <% if needs_response %>
+      //make sure they answered the question (only check if surveyor deems it necessary)
+      if ($('response_form_text').value == ''){
+        alert('You must fill in an answer.');
+        return;
+      }
+    <% end %>
+    $('response_form').submit();
+  }
+</script>

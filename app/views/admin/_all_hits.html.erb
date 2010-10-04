@@ -1,0 +1,75 @@
+<div style="margin:5px; padding:5px; border: 1px solid black;">
+  <h3>All HITs (<%= surveys.length %>)</h3>
+  <table width="100%" cellspacing="0">
+    <tr>
+      <th align="center">ID</th>
+      <th align="center">Batch</th>
+      <th align="center">Ver #</th>
+      <th align="center">Do Locally</th>
+      <th align="center">MTurk Hit Info</th>
+      <!--<th align="center">A/G</th>-->
+      <th align="center">Treatment</th>
+      <th align="center"># Questions <br />(* if done)</th>
+      <% if Survey.has_an_imc_question? %>
+        <th align="center">IMC</th>
+      <% end %>
+      <th align="center"># Window Switches</th>
+      <% if Survey.includes_nfc_assessment? %>
+        <th align="center">NfC mean (sd)</th>
+      <% end %>
+      <!--<th align="center">Feedback Word Count</th>-->
+      <!--<th align="center">Time Feedback</th>-->
+      <th align="center">Pay / Bonus / Reject</th>
+      <th align="center">Time Questions</th>
+      
+      <th align="center">Email</th>    
+    </tr>
+    <% surveys.reverse.each do |s| %>    
+      <tr style="<% if s.has_duplicate_questions? %>background-color:rgb(255, 150, 150);<% end %><% if s.expired_and_unstarted? %>color:rgb(200,200,200);<% elsif s.expired_and_uncompleted? %>color:rgb(100,100,100);<% end %>">
+        <td align="center" valign="center"><%= link_to s.id, {:action => :investigate_survey, :id => s.id}, {:target => '_blank'} %></td>
+        <td align="center" valign="center">
+          <div style="font-size:22px;"><%= s.batch %></div>
+          <span style="font-size:10px;"><%= s.created_at.strftime('%H:%M %b %d') %></span>
+        </td>
+        <td align="center" valign="center"><%= s.version %></td>
+        <td align="center" valign="center"><%= link_to 'do', {:controller => :surveyor, :id => s.id}, {:target => '_blank'} %></td>
+        <td align="center" valign="center" style="font-size:6px;">
+          <%= link_to 'link', "https://#{BasicMTurk::MTURK_DEV ? 'workersandbox' : 'www'}.mturk.com/mturk/preview?groupId=#{s.mturk_group_id}&hitId=#{s.mturk_hit_id}&externalHit=true&canAccept=true", :target => '_blank', :style => '' %>
+          <% if s.mturk_worker_id %><br /><%= s.mturk_worker_id %><% end %>
+          <% if s.mturk_assignment_id %><br /><%= s.mturk_assignment_id %><% end %>
+        </td>
+        <!--<td align="center" valign="center" style="font-size:8px;"><%= s.age_gender_to_s %></td>-->
+        <td align="center" valign="center" style="font-size:8px;"><%= s.treatment_to_s %></td>
+        <td align="center" valign="center">
+          <%= (s.num_questions_completed.zero? and s.did_not_read_directions_yet?) ? nil : (s.completed? ? '*' : s.num_questions_completed) %>
+        </td>
+        <% if Survey.has_an_imc_question? %>
+          <td align="center" valign="center" style="font-size:8px;">
+            <%= case s.passed_imc?
+                  when true then %Q|<span style="color:green;">PASS</span>|
+                  when false then %Q|<span style="color:red;">FAILED</span>|
+                  when nil then "N/A"
+                end %>
+          </td>
+        <% end %>
+        <td align="center" valign="center">
+          <%= s.browser_statuses.length / 2 unless s.browser_statuses.empty? %>
+        </td>
+        <% if Survey.includes_nfc_assessment? %>
+        <td align="center" valign="center"><%= "#{digits_round(s.calculate_average_ncs)} (#{digits_round(s.calculate_sd_ncs)})" %></td>
+        <% end %>
+        <%#= render :partial => 'num_words_feedback', :locals => {:s => s} %>
+        <td align="center" valign="center" style="font-size:8px;"><%= render :partial => 'pay_and_or_bonus_or_reject', :locals => {:s => s, :page => 'index'} %></td>
+        <td align="center" valign="center"><%= convert_seconds_to_time(s.total_time_for_questions_in_sec) %></td>
+
+        <td align="center" valign="center">
+          <% if s.mturk_worker_id %>
+            <input type="checkbox" worker_id="<%= s.mturk_worker_id %>" class="worker_send_checkbox" />
+          <% else %>
+            <input type="checkbox" disabled="true" />
+          <% end %>
+        </td>
+      </tr>  
+    <% end %>    
+  </table>
+</div>

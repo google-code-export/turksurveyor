@@ -1,0 +1,14 @@
+--- 
+javascripts: 
+- base: 
+  - prototype
+  - effects
+  - dragdrop
+  - controls
+  - application
+  - kapcha
+ 
+stylesheets: 
+- base: 
+  - turksurveyor
+  - rounded

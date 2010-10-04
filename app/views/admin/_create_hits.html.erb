@@ -1,0 +1,30 @@
+<div style="margin:5px; padding:5px; border: 1px solid black;">
+  <h3>Create experimental HIT sets</h3>
+  Current wage schedule: <%= SurveyMTurk::EXPERIMENTAL_WAGE %><br />
+  Current country: <%= SurveyMTurk::EXPERIMENTAL_COUNTRY %><br />
+  <br />
+  <div>
+    We are currently in
+    <%= BasicMTurk::MTURK_DEV ? "sandbox mode. Have no fear!" : "production mode. Hits will be created on the live site! Make sure the MTurk account is sufficiently funded!!!" %>
+  </div>
+  <br />
+  <form method="post" action="/admin/create_hits">
+    <table>
+      <tr>
+        <th colspan="2">Number of HITs per treatment</th>
+      </tr>
+      <% Survey::Treatments.each_with_index do |run, i| %>
+      <tr>
+        <td align="center"><%= run.to_s %></td>
+        <td align="center"><input type="text" name="n_<%= run.to_s %>" value="" id="num_hits_to_create_<%= i %>" style="width:25px;" /></td>
+      </tr>
+      <% end %>
+    </table>
+    <input type="submit" value=" Create HIT(s)! " />
+  </form>
+</div>
+<script>
+  Event.observe(window, 'load', function(){
+    $('num_hits_to_create_0').focus();
+  });
+</script>

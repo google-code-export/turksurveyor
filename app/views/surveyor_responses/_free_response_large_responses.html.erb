@@ -1,0 +1,34 @@
+<% width = @q[:other_response_params][:textarea_width] || Survey::TextareaWidthDefault %>
+<% height = @q[:other_response_params][:textarea_height] || Survey::TextareaHeightDefault %>
+<% needs_response = @q[:other_response_params][:needs_response] || Survey::NeedsResponseDefault %>
+<textarea
+  id="free_response"
+  style="width:<%= width %>px; height:<%= height %>px; <%= 'display:none;' if Survey.use_kapcha?(@q[:question_type]) %>"
+  class="kapcha_control"></textarea>
+<br />
+<br />
+<input
+  type="button"
+  value=" <%= @q[:submit_text] || Survey::DefaultSubmitText %> "
+  onclick="SubmitSurvey();"
+  class="kapcha_control"
+  id="kapcha_submit_button"
+  style="<%= 'display:none;' if Survey.use_kapcha?(@q[:question_type]) %>" />
+
+<script type="text/javascript">
+  function SubmitSurvey(){
+    $('response_form_text').value = encodeURIComponent($('free_response').value);    
+    <% if needs_response %>
+      //make sure they answered the question (only check if surveyor deems it necessary)
+      if ($('response_form_text').value == ''){
+        alert('You must fill in an answer.');
+        return;
+      }
+    <% end %>
+    $('response_form').submit();
+  }
+
+  Event.observe(window, 'load', function(){
+    $('free_response').focus();
+  });
+</script>

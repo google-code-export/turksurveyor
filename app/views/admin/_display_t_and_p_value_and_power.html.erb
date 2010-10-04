@@ -1,0 +1,16 @@
+<td align="center">
+  <% t = two_sampe_t_test_unpooled(samp_1, samp_2) %>
+  <% p = two_tailed_normal_probability(t) %>
+  <span style="color:<%= p.nil? ? 'black' : (p < StatisticsTools::AlphaLevel ? 'green' : 'red') %>;">
+    t<sub>u</sub> = <%= digits_round(t, 2) %>, p = <%= digits_round(p, 3) %><br />
+  </span>
+  <% t = two_sample_t_test_pooled(samp_1, samp_2) %>
+  <% p = two_tailed_normal_probability(t) %>
+  <span style="color:<%= p.nil? ? 'black' : (p < StatisticsTools::AlphaLevel ? 'green' : 'red') %>;">
+    t<sub>p</sub> = <%= digits_round(t, 2) %>, p = <%= digits_round(p, 3) %><br />
+  </span>
+  <% beta = power_of_unpooled_t_test(samp_1, samp_2) %>
+  <span style="color:<%= beta.nil? ? 'black' : (beta > 1 - StatisticsTools::AlphaLevel ? 'green' : 'red') %>;">
+    &beta; = <%= digits_round((beta || 0) * 100, 1) %>%
+  </span>
+</td>

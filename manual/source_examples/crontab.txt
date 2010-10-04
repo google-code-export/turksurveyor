@@ -1,0 +1,1 @@
+0 2,8,14,20 * * * /usr/local/bin/ruby -C /home/aptana/homes/<project>/public/web/current script/runner "Survey.create_n_hit_sets(50)" -e production
